@@ -3,7 +3,7 @@ Gabriel Diniz Junqueira Barbosa - 1511211 - 3WB
 Juliana Zibenberg - Matricula - 3WB
 */
 #include "utf16_8.h"
-
+#include <stdio.h>
 
 /*
     Funcao Privada BOM_BE - Implementador: Gabriel Barbosa
