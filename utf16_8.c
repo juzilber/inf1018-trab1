@@ -111,6 +111,11 @@ int writeUTF8 (int val, FILE* arq_saida){
     return 0;
 }
 
+int decompCodeUnits(int i){
+    int first = i & 0x03FF0000;
+    int second = i & 0x000003FF;
+}
+
 int utf16_8(FILE* arq_entrada, FILE* arq_saida){
     int i = 0; num = 0;
     num = fread(&i, sizeof(int), 1, arq_entrada);
@@ -122,7 +127,12 @@ int utf16_8(FILE* arq_entrada, FILE* arq_saida){
         if(TypeChar(i) == 2){
             int first = getFirst(i);
             int second = getSecond(i);
-            if (bracket)
+            if(writeUTF8 (first, arq_saida))
+                return -1;
+            if(writeUTF8 (second, arq_saida))
+                return -1; 
+        } else if(TypeChar(i) == 1){
+            int val = decompCOdeUnits(i);
         }
     }
     return 0;
