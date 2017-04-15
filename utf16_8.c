@@ -65,11 +65,11 @@ int TypeChar (int i){
 */
 
 int getFirst (int i){
-    return (i & 0xFF00) >> 16;
+    return (i & 0xFFFF0000) >> 16;
 }
 
 int getSecond (int i){
-    return (i & 0x00FF);
+    return (i & 0x0000FFFF);
 }
 
 /*
