@@ -2,6 +2,7 @@
 Gabriel Diniz Junqueira Barbosa - 1511211 - 3WB
 Juliana Zibenberg - Matricula - 3WB
 */
+
 #include "utf16_8.h"
 #include <stdio.h>
 
@@ -9,17 +10,17 @@ Juliana Zibenberg - Matricula - 3WB
     Funcao Privada BOM_BE - Implementador: Gabriel Barbosa
 
     Descricao: Essa funcao determina se o BOM indica uma ordenacao
-               Big Endian. Se for, retorna 0, caso contrario, 1
+               Big Endian. Se for, retorna 1, caso contrario, 0
                e retornado.
 
     Paramentros: BOM - Valor do BOM do arquivo
 
-    Retornos: 0 - Caso o BOM indicar uma ordenacao big endian.
-              1 - Caso o BOM indicar uma ordenacao diferente.
+    Retornos: 1 - Caso o BOM indicar uma ordenacao big endian.
+              0 - Caso o BOM indicar uma ordenacao diferente.
 */
 
-int BOM_BE (short BOM){
-    int i = 0xFEFF;
+int BOM_BE (unsigned short BOM){
+    unsigned short i = 0xFEFF;
     if ((BOM - i) != 0)
         return 0;
     return 1;
@@ -40,36 +41,13 @@ int BOM_BE (short BOM){
                  representando dois caracteres diferentes.
 */
 
-int TypeChar (int i){
-    int first = getFirst(i);
-    int second = getSecond(i);
-    if(first >= 0xD800 && first<= 0xDFFF && second >= 0xD800 && second <= 0xDFFF){
+int TypeChar (unsigned short s){
+    unsigned short s1 = 0xD800, s2 = 0xDFFF;
+    if(s >= s1 && s<= s2){
         return 1; //Sao 2 code units de 1 elemento
     } else {
         return 2; //Sao 2 code units de 2 elementos
     }
-}
-
-/*
-    Funcoes Privadas getFirst e getSecond
-    
-    Implementador: Gabriel Barbosa
-
-    Descricao: Recebendo o inteiro, divide ele em dois inteiros,
-               para que seja transformado em dois caracteres.
-
-    Parametro: Recebe um int a ser dividido.
-
-    Retorno: Os numeros que representam os dois inteiros contidos
-             no inteiro.
-*/
-
-int getFirst (int i){
-    return (i & 0xFFFF0000) >> 16;
-}
-
-int getSecond (int i){
-    return (i & 0x0000FFFF);
 }
 
 /*
@@ -87,7 +65,7 @@ int getSecond (int i){
              4 - Caso se encontre entre 0x10000 e 0x10FFFF
 */
 
-int bracketUtf8(int i){
+int bracketUtf8(unsigned int i){
     if(i <= 0x007F){
         return 1;
     } else if(i <= 0x07FF){
@@ -114,37 +92,47 @@ int bracketUtf8(int i){
             -1 - Caso a haja erros na execucao.
 */
 
-int writeUTF8 (int val, FILE* arq_saida){
+int writeUTF8 (unsigned int val, FILE* arq_saida){
     int bracket = bracketUtf8(val);
     if(bracket == 1){
-        char c = val & 0x7F;
-        if(fwrite(&c, sizeof(char), 1, arq_saida) == 0){
+        unsigned char c = val & 0x7F;
+        if(fwrite(&c, sizeof(unsigned char), 1, arq_saida) == 0){
             printf("Erro de escrita!");
             return -1;
         }
     } else if(bracket == 2){
-        short first = 0xC000 | (val & 0x1F00);
-        short second = 0x0080 | (val & 0x003F);
-        short s = first | second;
-        if(fwrite(&s, sizeof(short), 1, arq_saida) == 0){
+        unsigned short first = 0xC000 | ((val & 0x07C0) << 2);
+        unsigned short second = 0x0080 | (val & 0x003F);
+        unsigned short s = (first >> 8) | (second << 8);
+
+        if(fwrite(&s, sizeof(unsigned short), 1, arq_saida) == 0){
             printf("Erro de escrita!");
             return -1;
         }
     } else if(bracket == 3){
-        int first = 0xE00000 | (val & 0x0F0000);
-        int second = 0x008000 | (val & 0x003F00);
-        int third = 0x000080 | (val & 0x00003F);
-        int i = first| second | third;
-        if(fwrite(&i, sizeof(int), 1, arq_saida) == 0){
-            printf("Erro de escrita!");
-            return -1;
-        }
+        unsigned char c[3];
+        unsigned int first = 0xE00000 | ((val & 0x00F000) << 4);
+        unsigned int second = 0x008000 | ((val & 0x000FC0) << 2);
+        unsigned int third = 0x000080 | (val & 0x00003F);
+
+        c[0] = first >> 16;
+        c[1] = second >> 8;
+        c[2] = third;
+        
+
+        fwrite(&c[0], sizeof(unsigned char), 1, arq_saida);
+        fwrite(&c[1], sizeof(unsigned char), 1, arq_saida);
+        fwrite(&c[2], sizeof(unsigned char), 1, arq_saida);
+        
     } else if(bracket == 4){
-        int first = 0xF0000000 | (val & 0x07000000);
-        int second = 0x00800000 | (val & 0x003F0000);
-        int third = 0x00008000 | (val & 0x00003F00);
-        int fourth = 0x00000080 | (val & 0x0000003F);
-        int i = first | second | third | fourth;
+
+        unsigned int first = 0xF0000000 | ((val & 0x001C00000) << 6);
+        unsigned int second = 0x00800000 | ((val & 0x0003F000) << 4);
+        unsigned int third = 0x00008000 | ((val & 0x00000FC0) << 2);
+        unsigned int fourth = 0x00000080 | (val & 0x0000003F);
+
+        unsigned int i = first >> 24 | second >> 8 | third << 8 | fourth << 24; //Inverte a ordem pois eh big endian!!
+
         if(fwrite(&i, sizeof(int), 1, arq_saida) == 0){
             printf("Erro de escrita!");
             return -1;
@@ -166,11 +154,16 @@ int writeUTF8 (int val, FILE* arq_saida){
     Retorno: Os 20 bits significantes antes das operacoes.
 */
 
-int decompCodeUnits(int i){
-    int first = i & 0x03FF0000;
-    int second = i & 0x000003FF;
-    return ((first >> 6) | second) + 0x10000;
+unsigned int decompCodeUnits(unsigned short a, unsigned short b){
+    unsigned short s1 = a & 0x03FF;
+    unsigned short s2 = b & 0x03FF;
+    unsigned int i1 = s1;
+    i1 = i1 << 10;
+    unsigned int i2 = s2;
+    unsigned int i = (i1 | i2) + 0x10000;
+    return i;
 }
+
 
 /*
     Funcao Publica utf16_8 - Implementador: Gabriel Barbosa
@@ -187,27 +180,61 @@ int decompCodeUnits(int i){
 */
 
 int utf16_8(FILE* arq_entrada, FILE* arq_saida){
-    int i = 0; num = 0;
-    num = fread(&i, sizeof(int), 1, arq_entrada);
-    while(num != EOF){
-        if(num == 0){
-            printf("Erro de leitura!");
-            return -1;
-        } 
-        if(TypeChar(i) == 2){
-            int first = getFirst(i);
-            int second = getSecond(i);
-            if(writeUTF8 (first, arq_saida) == -1)
-                return -1;
-            if(writeUTF8 (second, arq_saida) == -1)
-                return -1; 
-        } else if(TypeChar(i) == 1){
-            int val = decompCodeUnits(i);
-            if(writeUTF8 (val, arq_saida) == -1)
-                return -1;
-        }
+
+    unsigned short first = 0, second = 0, bom = 0;
+    int num = 0;
+
+    num = fread(&bom, sizeof(unsigned short), 1, arq_entrada);
+
+    if(num != 1){
+        printf("Erro de leitura do BOM!\n");
+        return -1;
     }
+
+    if (BOM_BE(bom) == 0){ //Checa o BOM
+        printf("BOM nao indica big endian!\n");
+        return -1;
+    }
+
+    num = fread(&first, sizeof(unsigned short), 1, arq_entrada);
+
+    while(!feof(arq_entrada)){
+
+        if(num != 1){ //Checa a leitura do primeiro short
+            printf("Erro de leitura!\n");
+            return -1;
+        }
+
+        if(TypeChar(first) == 2){ // 1 short - 1 elemento
+            unsigned int val = 0 | first;
+            if(writeUTF8 (val, arq_saida) == -1){
+                printf("Erro de escrita!!\n");
+                return -1; //Erro de Escrita
+            }
+
+        } else if(TypeChar(first) == 1){ // 2 short - 1 elemento
+            
+            // Leitura de mais um short
+            num = fread(&second, sizeof(short), 1, arq_entrada);
+
+            if(num != 1){ //Checa a leitura do segundo short
+                printf("Erro de leitura!\n");
+                return -1;
+            }
+
+            unsigned int val = decompCodeUnits(first, second);
+
+            if(writeUTF8 (val, arq_saida) == -1){
+                return -1; //Erro de Escrita
+                printf("Erro de escrita!\n");
+            }
+        }
+
+        num = fread(&first, sizeof(short), 1, arq_entrada);
+    }
+
     return 0;
+
 }
 
 
