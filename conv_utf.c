@@ -13,6 +13,17 @@ unsigned int transform_utf16(unsigned int unicode) {
 	}
 }
 
+void printBigEndian(unsigned int utf, FILE *arq_saida) {
+	unsigned char x = ((unsigned char)(utf >> 24));
+	fwrite(&x, 1, 1, arq_saida);
+	x = ((unsigned char)((utf << 8) >> 24));
+	fwrite(&x, 1, 1, arq_saida);
+	x = ((unsigned char)((utf << 16) >> 24));
+	fwrite(&x, 1, 1, arq_saida);
+	x = ((unsigned char)((utf << 24) >> 24));
+	fwrite(&x, 1, 1, arq_saida);
+}
+
 void print_unicode(FILE *arq_entrada, FILE *arq_saida) {
 	unsigned char c = fgetc(arq_entrada);
 	while (!feof(arq_entrada)) {
@@ -20,8 +31,7 @@ void print_unicode(FILE *arq_entrada, FILE *arq_saida) {
 			//printf("entrou no primeiro caso: %.4x\n", c);
 			printf("sh = %x\n", transform_utf16((unsigned int)c));
 			//fputc(transform_utf16((unsigned int)c), arq_saida);
-			unsigned int x = transform_utf16((unsigned int)c);
-			fwrite(&x, 4, 1, arq_saida);
+			printBigEndian(transform_utf16((unsigned int)c), arq_saida);
 		}
 		else if ((c & 0x20) == 0) { // compara para ver se o terceiro digito eh 0
 			//printf("entrou no segundo caso, pega mais um char: %x\n", c);
@@ -34,8 +44,7 @@ void print_unicode(FILE *arq_entrada, FILE *arq_saida) {
 			printf("sh = %4x\n", sh);
 			printf("sh = %x\n", transform_utf16(sh));
 			//fputc(transform_utf16(sh), arq_saida);
-			unsigned int x = transform_utf16(sh);
-			fwrite(&x, 4, 1, arq_saida);
+			printBigEndian(transform_utf16(sh), arq_saida);
 		}
 		else if ((c & 0x10) == 0) { //compara para ver se o quarto digito eh 0
 			//printf("entrou no terceiro caso, pega mais dois chars: %x\n", c);
@@ -52,8 +61,7 @@ void print_unicode(FILE *arq_entrada, FILE *arq_saida) {
 			printf("sh = %4x\n", sh);
 			printf("sh = %x\n", transform_utf16(sh));
 			//fputc(transform_utf16(sh), arq_saida);
-			unsigned int x = transform_utf16(sh);
-			fwrite(&x, 4, 1, arq_saida);
+			printBigEndian(transform_utf16(sh), arq_saida);
 		}
 		else {
 			//printf("entrou no quarto caso, pega mais tres chars: %x\n", c);
@@ -71,8 +79,7 @@ void print_unicode(FILE *arq_entrada, FILE *arq_saida) {
 			sh = sh | continuacao;
 			printf("sh = %4x\n", sh);
 			printf("sh = %x\n", transform_utf16(sh));
-			unsigned int x = transform_utf16(sh);
-			fwrite(&x, 4, 1, arq_saida);
+			printBigEndian(transform_utf16(sh), arq_saida);
 		}
 		c = fgetc(arq_entrada);
 	}
@@ -83,7 +90,8 @@ int utf8_16(FILE *arq_entrada, FILE *arq_saida) {
 		//todo: emitir erro na saida (stderr)
 		return -1;
 	}
-
+	fputc(0xfe, arq_saida);
+	fputc(0xff, arq_saida);
 	print_unicode(arq_entrada, arq_saida);
 	
 	return 0;
@@ -93,6 +101,15 @@ int main(void) {
 	FILE *e = fopen("entrada.txt", "rb");
 	FILE *s = fopen("saida.txt", "wb");
 	utf8_16(e, s);
+	fclose(s);
+	s = NULL;
+	s = fopen("saida.txt", "rb");
+	unsigned char c = fgetc(s);
+	while (!feof(s))
+	{
+		printf("\n%x", c);
+		c = fgetc(s);
+	}
 	fclose(e);
 	fclose(s);
 	return 0;
