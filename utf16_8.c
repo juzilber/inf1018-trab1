@@ -1,6 +1,6 @@
 /*
 Gabriel Diniz Junqueira Barbosa - 1511211 - 3WB
-Juliana Zibenberg - Matricula - 3WB
+Juliana Zilberberg - 1410899 - 3WB
 */
 
 #include "utf16_8.h"
@@ -96,19 +96,17 @@ int writeUTF8 (unsigned int val, FILE* arq_saida){
     int bracket = bracketUtf8(val);
     if(bracket == 1){
         unsigned char c = val & 0x7F;
-        if(fwrite(&c, sizeof(unsigned char), 1, arq_saida) == 0){
-            printf("Erro de escrita!");
+        if(fwrite(&c, sizeof(unsigned char), 1, arq_saida) == 0)
             return -1;
-        }
+
     } else if(bracket == 2){
         unsigned short first = 0xC000 | ((val & 0x07C0) << 2);
         unsigned short second = 0x0080 | (val & 0x003F);
         unsigned short s = (first >> 8) | (second << 8);
 
-        if(fwrite(&s, sizeof(unsigned short), 1, arq_saida) == 0){
-            printf("Erro de escrita!");
+        if(fwrite(&s, sizeof(unsigned short), 1, arq_saida) == 0)
             return -1;
-        }
+ 
     } else if(bracket == 3){
         unsigned char c[3];
         unsigned int first = 0xE00000 | ((val & 0x00F000) << 4);
@@ -120,9 +118,12 @@ int writeUTF8 (unsigned int val, FILE* arq_saida){
         c[2] = third;
         
 
-        fwrite(&c[0], sizeof(unsigned char), 1, arq_saida);
-        fwrite(&c[1], sizeof(unsigned char), 1, arq_saida);
-        fwrite(&c[2], sizeof(unsigned char), 1, arq_saida);
+        if(fwrite(&c[0], sizeof(unsigned char), 1, arq_saida) == 0)
+            return -1;
+        if(fwrite(&c[1], sizeof(unsigned char), 1, arq_saida) == 0)
+            return -1;
+        if(fwrite(&c[2], sizeof(unsigned char), 1, arq_saida) == 0)
+            return -1;
         
     } else if(bracket == 4){
 
@@ -133,10 +134,9 @@ int writeUTF8 (unsigned int val, FILE* arq_saida){
 
         unsigned int i = first >> 24 | second >> 8 | third << 8 | fourth << 24; //Inverte a ordem pois eh big endian!!
 
-        if(fwrite(&i, sizeof(int), 1, arq_saida) == 0){
-            printf("Erro de escrita!");
+        if(fwrite(&i, sizeof(int), 1, arq_saida) == 0)
             return -1;
-        }
+       
     }
     return 0;
 }
@@ -230,7 +230,7 @@ int utf16_8(FILE* arq_entrada, FILE* arq_saida){
             }
         }
 
-        num = fread(&first, sizeof(short), 1, arq_entrada);
+        num = fread(&first, sizeof(short), 1, arq_entrada); //Leitura de mais um code unit
     }
 
     return 0;

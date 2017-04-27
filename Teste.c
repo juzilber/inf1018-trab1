@@ -1,10 +1,21 @@
 #include <stdio.h>
 #include "utf16_8.h"
-/*
-TESTE DE RECONHECIMENTO DE BOM
+
+//Arquivo de teste da funcao utf16_8
+
 int main(void){
-    short BOM = 0xFEFF;
-    if (BOM_BE(BOM) != 1)
-        printf("BOM de tipo errado!");
+    FILE * arq_entrada = fopen("arqEntrada.txt", "rb");
+    FILE * arq_saida = fopen("arqSaida.txt", "wb");
+
+    int ret = utf16_8(arq_entrada, arq_saida);
+    
+    if(ret == -1)
+        printf("Houve erro!\n");
+    else
+        printf("Execucao correta!\n");
+
+    fclose(arq_entrada);
+    fclose(arq_saida);
+
+    return 0;
 }
-*/
