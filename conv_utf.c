@@ -1,3 +1,8 @@
+/*
+Gabriel Diniz Junqueira Barbosa - 1511211 - 3WB
+Juliana Zilberberg - 1410899 - 3WB
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
