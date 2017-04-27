@@ -19,14 +19,23 @@ unsigned int transform_utf16(unsigned int unicode) {
 }
 
 void printBigEndian(unsigned int utf, FILE *arq_saida) {
-	unsigned char x = ((unsigned char)(utf >> 24));
-	fwrite(&x, 1, 1, arq_saida);
-	x = ((unsigned char)((utf << 8) >> 24));
-	fwrite(&x, 1, 1, arq_saida);
-	x = ((unsigned char)((utf << 16) >> 24));
-	fwrite(&x, 1, 1, arq_saida);
-	x = ((unsigned char)((utf << 24) >> 24));
-	fwrite(&x, 1, 1, arq_saida);
+	if ((utf & 0xffff0000) == 0) { //apenas um code unit
+		unsigned short new_utf = (unsigned short)utf;
+		unsigned char x = ((unsigned char)(new_utf >> 8));
+		fwrite(&x, 1, 1, arq_saida);
+		x = ((unsigned char)((new_utf << 8) >> 8));
+		fwrite(&x, 1, 1, arq_saida);
+	}
+	else { //dois code unit
+		unsigned char x = ((unsigned char)(utf >> 24));
+		fwrite(&x, 1, 1, arq_saida);
+		x = ((unsigned char)((utf << 8) >> 24));
+		fwrite(&x, 1, 1, arq_saida);
+		x = ((unsigned char)((utf << 16) >> 24));
+		fwrite(&x, 1, 1, arq_saida);
+		x = ((unsigned char)((utf << 24) >> 24));
+		fwrite(&x, 1, 1, arq_saida);
+	}
 }
 
 void print_unicode(FILE *arq_entrada, FILE *arq_saida) {
