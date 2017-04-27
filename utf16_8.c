@@ -3,7 +3,7 @@ Gabriel Diniz Junqueira Barbosa - 1511211 - 3WB
 Juliana Zilberberg - 1410899 - 3WB
 */
 
-#include "utf16_8.h"
+#include "conv_utf.h"
 #include <stdio.h>
 
 /*
