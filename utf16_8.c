@@ -187,12 +187,12 @@ int utf16_8(FILE* arq_entrada, FILE* arq_saida){
     num = fread(&bom, sizeof(unsigned short), 1, arq_entrada);
 
     if(num != 1){
-        printf("Erro de leitura do BOM!\n");
+        fprintf(stderr, "Erro de leitura do BOM!\n");
         return -1;
     }
 
     if (BOM_BE(bom) == 0){ //Checa o BOM
-        printf("BOM nao indica big endian!\n");
+        fprintf(stderr, "BOM invalido!\n");
         return -1;
     }
 
@@ -201,14 +201,14 @@ int utf16_8(FILE* arq_entrada, FILE* arq_saida){
     while(!feof(arq_entrada)){
 
         if(num != 1){ //Checa a leitura do primeiro short
-            printf("Erro de leitura!\n");
+            fprintf(stderr, "Erro de leitura!\n");
             return -1;
         }
 
         if(TypeChar(first) == 2){ // 1 short - 1 elemento
             unsigned int val = 0 | first;
             if(writeUTF8 (val, arq_saida) == -1){
-                printf("Erro de escrita!!\n");
+                fprintf(stderr, "Erro de escrita!!\n");
                 return -1; //Erro de Escrita
             }
 
@@ -218,15 +218,15 @@ int utf16_8(FILE* arq_entrada, FILE* arq_saida){
             num = fread(&second, sizeof(short), 1, arq_entrada);
 
             if(num != 1){ //Checa a leitura do segundo short
-                printf("Erro de leitura!\n");
+                fprintf(stderr,"Erro de leitura!\n");
                 return -1;
             }
 
             unsigned int val = decompCodeUnits(first, second);
 
             if(writeUTF8 (val, arq_saida) == -1){
-                return -1; //Erro de Escrita
-                printf("Erro de escrita!\n");
+                fprintf(stderr,"Erro de escrita!\n");
+		return -1; //Erro de Escrita
             }
         }
 
