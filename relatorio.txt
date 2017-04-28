@@ -1,16 +1,16 @@
-Relatorio do Trabalho - Conversao UTF:
+Relatório do Trabalho - Conversão UTF:
 
 Membros do Grupo:
 Gabriel Barbosa - 1511211 - 3WB
 Juliana Zilberberg - 1410899 - 3WB
 
-Todas as funcoes funcionam integralmente e no caso de erros de leitura, ou de escrita, mensagens de erro sao escritas no stderr.
+Todas as funções funcionam integralmente e no caso de erros de leitura, ou de escrita, mensagens de erro são escritas no stderr.
 
-Todas as funcoes auxiliares foram testadas individualmente e posteriormente testadas em conjunto. O processo de desenvolvimento foi separado em partes, comecando pela leitura, pra decodificacao em unicode ate a escrita na linguagem de saida.
+Todas as funções auxiliares foram testadas individualmente e posteriormente testadas em conjunto. O processo de desenvolvimento foi separado em partes, começando pela leitura, pra decodificação em unicode até a escrita na linguagem de saída.
 
-O codigo ficou documentado com resumos basicos do que cada funcao faz.
+O código ficou documentado com resumos básicos do que cada função faz.
 
-O Gabriel ficou responsavel pelo desenvolvimento da funcao utf16_8 e a Juliana da funcao utf8_16, com ambos testando o codigo do outro no final do desenvolvimento e fazendo inspecao dos codigos, para obter compreensao do funcionamento.
+O Gabriel ficou responsável pelo desenvolvimento da função utf16_8 e a Juliana da função utf8_16, com ambos testando o código do outro no final do desenvolvimento e fazendo inspeção dos códigos, para obter compreensão do funcionamento.
 
 Testes foram realizados em casos simulados inventados pelos membros do grupo e com os casos presentes nos casos exemplares oferecidas pela professora.
 
