@@ -1,6 +1,22 @@
+/*
+Gabriel Diniz Junqueira Barbosa - 1511211 - 3WB
+Juliana Zilberberg - 1410899 - 3WB
+*/
+
 #include "conv_utf.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+/*
+    Funcao Privada transform_utf16 - Implementador: Juliana Zilberberg
+
+    Descricao: Essa funcao recebe o valor unicode e cria os code units
+               que serao escritos
+
+    Paramentros: unicode - Valor do caracter em unicode
+
+    Retornos: Retorna o inteiro que deve ser impresso
+*/
 
 unsigned int transform_utf16(unsigned int unicode) {
 	if (unicode >= 0 && unicode <= 0xffff)
@@ -13,6 +29,19 @@ unsigned int transform_utf16(unsigned int unicode) {
 		return (utf16_1 << 16) | utf16_2;
 	}
 }
+
+/*
+    Funcao Privada printBigEndian - Implementador: Juliana Zilberberg
+
+    Descricao: Essa funcao recebe o valor dos code units e imprime um
+               ou dois code units
+
+    Paramentros: utf - Valor dos code units que deverao ser impressos
+                 arq_saida - Ponteiro para o arquivo de saida
+
+    Retornos: 0 - Impressao sucedida
+             -1 - Erro de impressao
+*/
 
 int printBigEndian(unsigned int utf, FILE *arq_saida) {
 	if ((utf & 0xffff0000) == 0) { //apenas um code unit
@@ -40,6 +69,20 @@ int printBigEndian(unsigned int utf, FILE *arq_saida) {
 	}
 	return 0;
 }
+
+/*
+    Funcao Privada print_unicode - Implementador: Juliana Zilberberg
+
+    Descricao: Essa funcao recebe o ponteiro do arquivo de entrada e
+               o ponteiro do arquivo de saida, realizando a leitura e
+               a impressao
+
+    Paramentros: arq_entrada - Ponteiro para o arquivo de entrada
+                 arq_saida - Ponteiro para o arquivo de saida
+
+    Retornos: 0 - Impressao sucedida
+             -1 - Erro de impressao
+*/
 
 int print_unicode(FILE *arq_entrada, FILE *arq_saida) {
 	unsigned char c = fgetc(arq_entrada);
@@ -106,6 +149,20 @@ int print_unicode(FILE *arq_entrada, FILE *arq_saida) {
 	}
 	return 0;
 }
+
+/*
+    Funcao Publica utf8_16 - Implementador: Juliana Zilberberg
+
+    Descricao: Essa funcao recebe o ponteiro do arquivo de entrada e
+               o ponteiro do arquivo de saida, imprimindo o BOM e
+               fazendo a chamada da funcao de leitura e impressao.
+
+    Paramentros: arq_entrada - Ponteiro para o arquivo de entrada
+                 arq_saida - Ponteiro para o arquivo de saida
+
+    Retornos: 0 - Conversao sucedida
+             -1 - Erro de conversao
+*/
 
 int utf8_16(FILE *arq_entrada, FILE *arq_saida) {
 	if (arq_entrada == NULL || arq_saida == NULL) {
