@@ -6,25 +6,26 @@
 int main(void){
 
     //Teste de conversao UTF 16 para UTF 8
-    /*FILE * arq_entrada = fopen("arqEntrada.txt", "rb");
-    FILE * arq_saida = fopen("arqSaida.txt", "wb");
+    FILE * arq_entrada1 = fopen("arqEntrada.txt", "rb");
+    FILE * arq_saida1 = fopen("arqSaida.txt", "wb");
 
-    int ret = utf16_8(arq_entrada, arq_saida);
+    int ret1 = utf16_8(arq_entrada1, arq_saida1);
+    int ret2;
     
-    if(ret == -1)
+    fclose(arq_entrada1);
+    fclose(arq_saida1);
+
+    //Teste de conversao UTF 8 para UTF 16
+    FILE *arq_entrada2  = fopen("entrada.txt", "rb");
+    FILE *arq_saida2 = fopen("saida.txt", "wb");
+    ret2 = utf8_16(arq_entrada2, arq_saida2);
+    fclose(arq_entrada2);
+    fclose(arq_saida2);
+
+    if(ret1 == -1 && ret2 == -1)
         printf("Houve erro!\n");
     else
         printf("Execucao correta!\n");
-
-    fclose(arq_entrada);
-    fclose(arq_saida);*/
-
-    //Teste de conversao UTF 8 para UTF 16
-    FILE *arq_entrada  = fopen("entrada.txt", "rb");
-    FILE *arq_saida = fopen("saida.txt", "wb");
-    utf8_16(arq_entrada, arq_saida);
-    fclose(arq_entrada);
-    fclose(arq_saida);
 
     return 0;
 }
